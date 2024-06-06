@@ -81,8 +81,8 @@ class ExperimentCoordinatorRunner(Generic[T]):
             .observe(lambda it_is, _: self.terminate() if it_is else '')
         # Events
         experiment_coordinator \
-            .add_on_population_tested_listener(lambda _: self.message_bus
-                                               .clear_individuals_queue) \
+            .add_on_population_evaluated_listener(lambda _: self.message_bus
+                                                  .clear_individuals_queue) \
             .add_on_testing_sample_selected_listener(lambda _: self.pubsub_pub
                                                      .broadcast_new_generation_signal()) \
             .add_on_testing_sample_selected_listener(self.__send_testing_sample)

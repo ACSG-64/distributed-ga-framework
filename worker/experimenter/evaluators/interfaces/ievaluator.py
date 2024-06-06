@@ -10,4 +10,9 @@ T = TypeVar('T')
 class IEvaluator(ABC, Generic[T]):
     @abstractmethod
     def evaluate_sample(self, sample: List[IndividualEntity[T]], _next: NextCallback) -> None:
+        """
+        :param sample:
+        :param _next: callback to send back the evaluated individuals
+        :return:
+        """
         raise NotImplementedError

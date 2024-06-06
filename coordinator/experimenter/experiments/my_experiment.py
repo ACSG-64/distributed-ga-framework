@@ -32,9 +32,5 @@ class MyExperiment(IExperiment, Generic[T]):
         new_pop = [individual_creator() for _ in range(10 - 3)]
         new_pop.extend([IndividualValue(encoding=ind.encoding, fitness=ind.fitness)
                         for ind in population[:3]])
-
-        print('Last new pop last three')
-        for individual in new_pop[:3]:
-            print(individual.fitness)
         self._counter += 1
         _next(new_pop)

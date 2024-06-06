@@ -75,6 +75,11 @@ class LocalExperimentCoordinator(Generic[T]):
         return time_elapsed >= self._exec_delay
 
     def add_on_evaluation_complete_listener(self, listener: OnEvaluationCompleteCb):
+        """
+        Listeners are notified when the sample is fully evaluated
+        :param listener:
+        :return:
+        """
         self._evaluation_complete_listeners.add_listener(listener)
 
     def __complete_experimentation(self, tested_sample: List[IndividualEntity[T]]):

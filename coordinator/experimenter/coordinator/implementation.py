@@ -81,10 +81,20 @@ class ExperimentCoordinator(Generic[T]):
             self.__stage_new_generation()
 
     def add_on_testing_sample_selected_listener(self, listener: OnTestingPopReadyCb[T]):
+        """
+        Listeners are notified when a new testing sample is selected, that is, when a new
+        generation is created only the individuals that don't have a fitness assigned
+        will be sent in order to be evaluated.
+        :param listener:
+        """
         self._testing_sample_listeners.add_listener(listener)
         return self
 
-    def add_on_population_tested_listener(self, listener: OnTestingPopReadyCb[T]):
+    def add_on_population_evaluated_listener(self, listener: OnTestingPopReadyCb[T]):
+        """
+        Listeners are notified when a population is fully evaluated
+        :param listener:
+        """
         self._pop_tested_listeners.add_listener(listener)
         return self
 

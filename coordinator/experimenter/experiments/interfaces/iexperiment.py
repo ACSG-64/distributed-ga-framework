@@ -11,4 +11,10 @@ class IExperiment(ABC, Generic[T]):
     @abstractmethod
     def apply_genetic_operations(self, population: List[IndividualEntity[T]],
                                  _next: NextCallback, _stop: StopCallback) -> None:
+        """
+        Receives an evaluated population in order to create a new generation.
+        :param population: evaluated population
+        :param _next: callback to proceed with the created population after applying GA operations
+        :param _stop: callback to terminate the experimentation process
+        """
         raise NotImplementedError
