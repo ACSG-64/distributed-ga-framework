@@ -7,7 +7,7 @@
 A simple framework to distribute GA workload in a horizontal-scaled manner.
 
 ## Basic schematic
-![Distributed GA](https://gist.github.com/assets/50815104/0535a622-1617-45ee-998b-2e54cc9739a0)
+![Distributed GA](https://github.com/ACSG-64/distributed-ga-framework/assets/50815104/53b7e3f5-8458-4b0a-af14-f103acd73f35)
 
 ## Built-in implementations
 * **Messaging bus/queues** and **PubSub**: any AMQP 0-9-1 compatible service could be used.
