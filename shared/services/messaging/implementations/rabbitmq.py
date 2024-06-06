@@ -110,7 +110,6 @@ class RabbitMqMessagingBaseControls(IMessageBusControls, IPubSubControls, ABC):
             self._start_cb = None
 
     def __on_close(self, a, b):
-        print('ON CLOSEEEEEEEEE', a, b)
         self._stop_event.set()  # stops the thread
         if self._keep_alive_thread.is_alive():
             self._keep_alive_thread.join()  # wait until it finishes

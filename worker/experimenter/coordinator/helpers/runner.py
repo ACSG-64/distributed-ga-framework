@@ -78,9 +78,7 @@ class LocalCoordinatorRunner(Generic[T]):
         message_bus \
             .add_on_individual_received_listener(self.__add_incoming_individual)
         pubsub_sub \
-            .add_on_new_generation_listener(lambda: print('>>>>>>>>>>>> NEW GEN')) \
             .add_on_new_generation_listener(experiment_coordinator.reset) \
-            .add_on_experiment_termination_listener(lambda: print('>>>>>>>>>>> GOOD BYE')) \
             .add_on_experiment_termination_listener(experiment_coordinator.stop)
 
     def __stop_messaging_services(self):

@@ -49,7 +49,6 @@ class RabbitMqMessaging(RabbitMqMessagingBaseControls,
                                    body='NEW GENERATION INCOMING')
 
     def broadcast_experiment_termination_signal(self):
-        print('Broadcasting')
         self.channel.basic_publish(exchange=self.termination_ex, routing_key='',
                                    body='EXPERIMENT TERMINATED')
 
@@ -69,7 +68,6 @@ class RabbitMqMessaging(RabbitMqMessagingBaseControls,
                               on_message_callback=self.__on_result_received_msg)
         self._start_keep_alive_thread()  # prepare thread
         self.is_starting_up = False  # fully ready
-        print('MAIN', self.is_listening)
         if self._is_fully_initialized:
             self._call_start_callback()
 

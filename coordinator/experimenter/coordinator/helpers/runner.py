@@ -106,7 +106,6 @@ class ExperimentCoordinatorRunner(Generic[T]):
 
     def __send_testing_sample(self, sample: List[IndividualEntity]):
         for ind in sample:
-            print('Sending ID', ind.id)
             self.message_bus.send_individual(ind.id, ind.encoding)
 
     def __monitor(self):
@@ -124,8 +123,6 @@ class ExperimentCoordinatorRunner(Generic[T]):
 
     def __resend_sample_on_timeout(self, pending_msgs_count: int):
         experiment_coordinator = self.experiment_coordinator
-        print('PENDING MSGs', pending_msgs_count)
         if experiment_coordinator.timeout(pending_msgs_count):
-            print('RESENDING...')
             testing_sample = experiment_coordinator.untested_individuals
             self.__send_testing_sample(testing_sample)

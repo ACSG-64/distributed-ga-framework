@@ -53,7 +53,6 @@ class RabbitMqMessaging(RabbitMqMessagingBaseControls,
             'on_message_callback': self.__on_individual_received_msg
         }
         c_tag = channel.basic_consume(**ind_q_bc_params)
-        print(c_tag)
         self.pausable_queues.append(PausableQueue(consumer_tag=c_tag,
                                                   basic_consume_params=ind_q_bc_params))
         # setup temporal, exclusive receiver queues for exchanges
@@ -71,18 +70,12 @@ class RabbitMqMessaging(RabbitMqMessagingBaseControls,
             self._call_start_callback()
 
     def __on_individual_received_msg(self, channel, method, _, body):
-        print(body)
         ind = self.__message_parser(body)
         if ind:
             self.individual_received_listeners(ind[0], ind[1])
             channel.basic_ack(delivery_tag=method.delivery_tag)
         else:
             channel.basic_nack(delivery_tag=method.delivery_tag)
-
-    def __troll(self):
-        time.sleep(20)
-        print('Resuming')
-        self.resume()
 
     def __on_new_generation_signal_msg(self, channel, method, _, __):
         channel.basic_ack(delivery_tag=method.delivery_tag)

@@ -19,6 +19,7 @@ class MyEvaluator(IEvaluator[T], Generic[T]):
         print('Working.....')
         for ind in sample:
             print(ind.id, ind.encoding)
+        # The most important step is to assign a fitness value
         sample_evaluated = [IndividualEntity[T](id=ind.id, encoding=ind.encoding,
                                                 fitness=random.randint(0, 100))
                             for ind in sample]
