@@ -8,16 +8,18 @@ from experimenter.coordinator.helpers.runner import LocalCoordinatorRunner
 from experimenter.coordinator.implementation import LocalExperimentCoordinator
 from experimenter.evaluators.my_evaluator import MyEvaluator
 from services.messaging.implementations.rabbitmq.implementation import RabbitMqMessaging
+from worker.helpers.setup_settings_prompt import setup_settings_prompt
 
+print('[[WORKER]]')
 load_dotenv()
-
 AMQP_SERVER_URL = os.getenv('AMQP_SERVER_URL')
+EX_ID, SAMPLE_SIZE = setup_settings_prompt()
 
-messaging = RabbitMqMessaging[Genome](experiment_id=1,
+messaging = RabbitMqMessaging[Genome](experiment_id=EX_ID,
                                       connection_string=AMQP_SERVER_URL)
 my_evaluator = MyEvaluator[Genome]()
-experiment_coordinator = LocalExperimentCoordinator[Genome](
-    sample_size=4, evaluate_sample_callback=my_evaluator.evaluate_sample)
+experiment_coordinator = LocalExperimentCoordinator[Genome](sample_size=SAMPLE_SIZE,
+                                                            evaluator=my_evaluator)
 
 if __name__ == '__main__':
     coordinator_runner = LocalCoordinatorRunner[Genome](experiment_coordinator,

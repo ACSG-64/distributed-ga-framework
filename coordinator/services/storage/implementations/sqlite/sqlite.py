@@ -6,12 +6,12 @@ from typing import Tuple, List, TypeVar
 from shared.annotations.custom import UUID, FitnessScore
 from shared.models.entities.individual import IndividualEntity
 from shared.models.value_objects.individual import IndividualValue
-from coordinator.services.storage.abstract.storage import StorageAdapter
+from coordinator.services.storage.interfaces.istorage import IStorage
 
 T = TypeVar('T')
 
 
-class SqliteStorage(StorageAdapter[T]):
+class SqliteStorage(IStorage[T]):
     __SETUP_SCRIPT = 'setup.sql'
 
     def __init__(self, database: str = 'database.db'):

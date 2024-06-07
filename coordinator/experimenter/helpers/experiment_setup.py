@@ -3,7 +3,7 @@ from typing import Generic, List, Tuple, TypeVar
 
 from shared.models.value_objects.individual import IndividualValue
 from shared.annotations.custom import UUID
-from coordinator.services.storage.abstract.storage import StorageAdapter
+from coordinator.services.storage.interfaces.istorage import IStorage
 
 T = TypeVar('T')
 
@@ -16,7 +16,7 @@ class ExperimentIntegrityViolations(Enum):
 
 class ExperimentSetupHelper(Generic[T]):
     @classmethod
-    def setup(cls, experiment_name: str, storage: StorageAdapter[T],
+    def setup(cls, experiment_name: str, storage: IStorage[T],
               initial_population_encodings: List[IndividualValue[T]]) -> Tuple[UUID, bool]:
         """
         Creates and stores the experiment information along with the initial population. If
@@ -46,7 +46,7 @@ class ExperimentSetupHelper(Generic[T]):
         return experiment_id, False
 
     @classmethod
-    def validate(cls, experiment_id, storage: StorageAdapter[T]) \
+    def validate(cls, experiment_id, storage: IStorage[T]) \
             -> Tuple[bool, ExperimentIntegrityViolations | None]:
         """
         Checks if an experiment is correctly initialized and if not, what steps are missing

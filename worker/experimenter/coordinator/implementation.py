@@ -1,25 +1,29 @@
 import time
 from threading import Thread
-from typing import TypeVar, Generic, List, Callable, TypeAlias
+from typing import TypeVar, Generic, List
 
 from shared.models.entities.individual import IndividualEntity
 from shared.utils.event_listener import EventListener
 from shared.utils.observable_scalar import ObservableScalar
+from worker.experimenter.coordinator.annotations.callbacks import OnEvaluationCompleteCb
+from worker.experimenter.evaluators.interfaces.ievaluator import IEvaluator
 
 T = TypeVar('T')
 
-NextCallback: TypeAlias = Callable[[List[IndividualEntity[T]]], any]
-OnSampleReadyCallback: TypeAlias = Callable[[List[IndividualEntity[T]], NextCallback], any]
-OnEvaluationCompleteCb: TypeAlias = NextCallback
-
 
 class LocalExperimentCoordinator(Generic[T]):
-
     def __init__(self, sample_size: int,
-                 evaluate_sample_callback: OnSampleReadyCallback[T],
+                 evaluator: IEvaluator[T],
                  execution_delay_secs: int = 10):
+        """
+        :param sample_size: the maximum number of individuals to be evaluated per interation
+        :param evaluator: an IEvaluator implementation and its method, evaluate_sample,
+        will be called when the a sample is ready to be evaluated
+        :param execution_delay_secs: max time to wait before running the callback if the sample
+         received smaller to the expected
+        """
         self._sample_size = sample_size
-        self._evaluate_sample_cb = evaluate_sample_callback
+        self._evaluator = evaluator
         self._local_sample: List[IndividualEntity[T]] = []
         self._exec_delay = execution_delay_secs
         self._is_monitoring = False
@@ -44,7 +48,7 @@ class LocalExperimentCoordinator(Generic[T]):
     def execute(self):
         if self._is_ready_to_execute:
             self._is_busy.value = True
-            Thread(target=self._evaluate_sample_cb,
+            Thread(target=self._evaluator.evaluate_sample,
                    args=(self._local_sample, self.__complete_experimentation,),
                    daemon=True
                    ).start()

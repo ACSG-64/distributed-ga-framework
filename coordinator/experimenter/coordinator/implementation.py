@@ -1,11 +1,12 @@
 import time
 from threading import Thread
-from typing import NamedTuple, TypeVar, Generic, List, Callable, TypeAlias
+from typing import NamedTuple, TypeVar, Generic, List
 
+from coordinator.experimenter.coordinator.annotations.callbacks import OnTestingPopReadyCb, OnPopulationTestedCb
+from coordinator.experimenter.experiments.interfaces.iexperiment import IExperiment
 from shared.annotations.custom import UUID, FitnessScore
-from shared.models.entities.individual import IndividualEntity
 from shared.models.value_objects.individual import IndividualValue
-from coordinator.services.storage.abstract.storage import StorageAdapter
+from coordinator.services.storage.interfaces.istorage import IStorage
 from shared.utils.event_listener import EventListener
 from shared.utils.observable_scalar import ObservableScalar
 
@@ -17,28 +18,22 @@ class FitnessResult(NamedTuple):
 
 T = TypeVar('T')
 
-NextCallback: TypeAlias = Callable[[List[IndividualValue[T]]], None]
-StopCallback: TypeAlias = Callable[[], None]
-CreateNewGenerationCallback: TypeAlias = Callable[
-    [List[IndividualEntity[T]], NextCallback[T], StopCallback], any]
-OnTestingPopReadyCb: TypeAlias = Callable[[List[IndividualEntity[T]]], any]
-OnPopulationTestedCb: TypeAlias = Callable[[List[IndividualEntity[T]]], any]
-
 
 class ExperimentCoordinator(Generic[T]):
     def __init__(self, experiment_id: UUID,
-                 create_next_generation_callback: CreateNewGenerationCallback[T],
-                 storage: StorageAdapter[T],
+                 experiment: IExperiment[T],
+                 storage: IStorage[T],
                  max_time_between_results_secs=60):
         """
         :param experiment_id:
-        :param create_next_generation_callback: This callback will be called when a population is evaluated
+        :param experiment: an IExperiment implementation and its method, apply_genetic_operations,
+        will be called when the population is evaluated
         :param storage:
         :param max_time_between_results_secs: This will be used in the timeout method
         """
         self._storage = storage
         self._ex_id: UUID = experiment_id
-        self._crete_next_gen_cb = create_next_generation_callback
+        self._experiment = experiment
         self._max_time_between_results_secs = max_time_between_results_secs
         self._generation_id = self._storage.get_latest_generation_id(self._ex_id)
         self._pending_individuals: set[UUID] = set()
@@ -122,7 +117,7 @@ class ExperimentCoordinator(Generic[T]):
         self._is_busy.value = True
         current_population = self._storage.get_population(self._generation_id)
         self._pop_tested_listeners(current_population)
-        Thread(target=self._crete_next_gen_cb,
+        Thread(target=self._experiment.apply_genetic_operations,
                args=(current_population, self.__start_new_generation, self.stop,)
                ).start()
 

@@ -26,25 +26,25 @@ def individual_creator(genes=3):
     return IndividualValue(encoding=[gene_creator() for _ in range(genes)])
 
 
-# Create the initial population
 pop = [individual_creator() for i in range(10)]
-storage = StorageFactory[Genome].create(driver=StorageDrivers.SQLITE)
-# Setup the experiment.
+storage = StorageFactory[Genome].create(driver=StorageDrivers.MEMORY)
 ex_id, using_init_pop = ExperimentSetupHelper.setup(experiment_name='ex-1',
                                                     storage=storage,
                                                     initial_population_encodings=pop)
 my_experiment = MyExperiment[Genome]()
 messaging = RabbitMqMessaging[Genome](experiment_id=ex_id,
                                       connection_string=AMQP_SERVER_URL)
-experiment_coordinator = ExperimentCoordinator[Genome](
-    experiment_id=ex_id, storage=storage, max_time_between_results_secs=60 * 5,
-    create_next_generation_callback=my_experiment.apply_genetic_operations)
+experiment_coordinator = ExperimentCoordinator[Genome](experiment_id=ex_id,
+                                                       max_time_between_results_secs=60 * 5,
+                                                       storage=storage,
+                                                       experiment=my_experiment)
 
 if __name__ == '__main__':
     coordinator_runner = ExperimentCoordinatorRunner[Genome](experiment_coordinator,
                                                              message_bus=messaging,
                                                              pubsub_pub=messaging)
-    coordinator_runner.is_terminated.observe(lambda it_is, _: _thread.interrupt_main() if it_is else '')
+    coordinator_runner.is_terminated.observe(lambda it_is, _:
+                                             _thread.interrupt_main() if it_is else '')
     try:
         coordinator_runner.run(should_await=not using_init_pop)
     except KeyboardInterrupt:

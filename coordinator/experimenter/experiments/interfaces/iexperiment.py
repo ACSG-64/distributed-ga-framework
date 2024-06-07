@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import TypeVar, Generic, List
 
 from shared.models.entities.individual import IndividualEntity
-from coordinator.experimenter.coordinator.implementation import NextCallback, StopCallback
+from coordinator.experimenter.annotations.callbacks import NextCallback, StopCallback
 
 T = TypeVar('T')
 

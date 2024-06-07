@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import TypeVar, Generic
 
-from coordinator.services.storage.abstract.storage import StorageAdapter
+from coordinator.services.storage.interfaces.istorage import IStorage
 
 T = TypeVar('T')
 
@@ -14,7 +14,7 @@ class StorageDrivers(Enum):
 class StorageFactory(Generic[T]):
 
     @classmethod
-    def create(cls, driver: StorageDrivers, **kwargs) -> StorageAdapter[T]:
+    def create(cls, driver: StorageDrivers, **kwargs) -> IStorage[T]:
         if driver == StorageDrivers.SQLITE:
             from coordinator.services.storage.implementations.sqlite.sqlite import SqliteStorage
             return SqliteStorage[T](**kwargs)

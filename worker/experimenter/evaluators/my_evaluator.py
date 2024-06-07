@@ -3,7 +3,7 @@ import time
 from typing import TypeVar, Generic, List
 
 from shared.models.entities.individual import IndividualEntity
-from worker.experimenter.coordinator.implementation import NextCallback
+from worker.experimenter.annotations.callbacks import NextCallback
 
 from worker.experimenter.evaluators.interfaces.ievaluator import IEvaluator
 
