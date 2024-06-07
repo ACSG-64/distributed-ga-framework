@@ -20,11 +20,12 @@ To add extensions without the need to edit the source code, many components emit
 Base dependencies for both components can be found in the `requirements.txt` file.
 
 ### Coordinator
-At a minimum, you need to create your custom experiment class inheriting the `IExperiment` _interface_ 
+At a minimum, you need to create your custom experiment class implementing the `IExperiment` _interface_ 
 where its method, `apply_genetic_operations`, will be called by the coordinator when a generation is evaluated, so it 
 would be appropriate to apply the genetic operators in that method in order to create a new generation.
 
-After creating the new generation, call `_next`, otherwise, if you want to stop the experimentation, call `_stop`.
+After creating the new generation, call `_next`, otherwise, if you want to stop the experimentation, call `_stop`. 
+Feel free to check an example of this in the `coordinator/experimenter/experiments/my_experiment.py` file.
 
 If you set a fitness to an individual (`IndividualEntity`), it will be stored in the next generation, but 
 it won't be part of the testing sample that is passed to the `testing sample` listeners (those listeners added through the 
@@ -35,9 +36,10 @@ advantage of this behaviour to, for example, apply the `elite` strategy.
 _Check the `coordinator/main.py` file for a simple demo on how to set up the components._
 
 ### Worker
-At a minimum, you need to create your custom evaluator class inheriting the `IExperiment` _interface_ 
+At a minimum, you need to create your custom evaluator class implementing the `IExperiment` _interface_ 
 where its method, `evaluate_sample`, will be called by the local coordinator when a sample is ready to be evaluated.
-After evaluating the sample, call `_next`
+
+After evaluating the sample, call `_next`. Feel free to check an example of this in the `worker/experimenter/evaluators/my_evaluator.py` file.
 
 _Check the `worker/main.py` file for a simple demo on how to set up the components._
 
