@@ -1,7 +1,6 @@
 import random
 from typing import List, TypeVar, Generic
 
-from shared.models.entities.individual import IndividualEntity
 from coordinator.experimenter.annotations.callbacks import NextCallback, StopCallback
 from coordinator.experimenter.experiments.interfaces.iexperiment import IExperiment
 from shared.models.value_objects.individual import IndividualValue
@@ -22,12 +21,13 @@ class MyExperiment(IExperiment[T], Generic[T]):
         super().__init__()
         self._counter = 1
 
-    def apply_genetic_operations(self, population: List[IndividualEntity[T]],
+    def apply_genetic_operations(self, generation_number: int,
+                                 population: List[IndividualValue[T]],
                                  _next: NextCallback[T], _stop: StopCallback) -> None:
         # All the following is a dummy example
-        print(f'Population of {len(population)} individuals')
+        print(f'Population {generation_number} of {len(population)} individuals')
         for individual in population:
-            print(f'Stats: {individual.id} - {individual.fitness}')
+            print(f'Stats: {individual.fitness}')
         if self._counter >= 2:
             return _stop()
         # create a random population

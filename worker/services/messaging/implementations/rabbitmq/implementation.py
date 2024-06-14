@@ -1,14 +1,13 @@
 import json
-import time
 from typing import TypeVar, Generic, Tuple
 
 from shared.annotations.custom import UUID, FitnessScore
+from shared.services.messaging.implementations.rabbitmq import RabbitMqMessagingBaseControls, PausableQueue
 from worker.services.messaging.bus.abstract.message_bus_listeners import MessageBusListeners
 from worker.services.messaging.bus.interfaces.imessage_bus import IMessageBus
 from worker.services.messaging.implementations.rabbitmq.utils.setup_queues import create_temporal_exchange_queue
 from worker.services.messaging.pubsub.subscriber.abstract.pubsub_subscriber_listeners import PusSubSubscriberListeners
 from worker.services.messaging.pubsub.subscriber.interfaces.ipubsub_subscriber import IPubSubSubscriber
-from shared.services.messaging.implementations.rabbitmq import RabbitMqMessagingBaseControls, PausableQueue
 
 T = TypeVar('T')
 

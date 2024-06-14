@@ -33,7 +33,7 @@ class ExperimentCoordinator(Generic[T]):
         """
         self._storage = storage
         self._ex_id: UUID = experiment_id
-        self._experiment = experiment
+        self._experimenter = experiment
         self._max_time_between_results_secs = max_time_between_results_secs
         self._generation_id = self._storage.get_latest_generation_id(self._ex_id)
         self._pending_individuals: set[UUID] = set()
@@ -117,8 +117,11 @@ class ExperimentCoordinator(Generic[T]):
         self._is_busy.value = True
         current_population = self._storage.get_population(self._generation_id)
         self._pop_tested_listeners(current_population)
-        Thread(target=self._experiment.apply_genetic_operations,
-               args=(current_population, self.__start_new_generation, self.stop,)
+        population = [IndividualValue(encoding=ie.encoding, fitness=ie.fitness)
+                      for ie in current_population]
+        gen_number = self._storage.count_generations(self._ex_id)
+        Thread(target=self._experimenter.apply_genetic_operations,
+               args=(gen_number, population, self.__start_new_generation, self.stop,)
                ).start()
 
     def __start_new_generation(self, new_individuals: List[IndividualValue[T]]):
