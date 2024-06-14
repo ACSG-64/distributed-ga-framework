@@ -4,7 +4,7 @@
 > codebase is not as _clean_ and _high quality_ as other public projects. Additionally, this repository may not be
 > maintained actively.
 
-A simple framework for distributing the workload of evaluating individuals in a horizontally scalable manner.
+A horizontal scaling framework to distribute the evaluation of individuals.
 
 ## Basic schematic
 ![Distributed GA](https://github.com/ACSG-64/distributed-ga-framework/assets/50815104/53b7e3f5-8458-4b0a-af14-f103acd73f35)
