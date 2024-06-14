@@ -3,10 +3,10 @@ import os
 import sqlite3
 from typing import Tuple, List, TypeVar
 
+from coordinator.services.storage.interfaces.istorage import IStorage
 from shared.annotations.custom import UUID, FitnessScore
 from shared.models.entities.individual import IndividualEntity
 from shared.models.value_objects.individual import IndividualValue
-from coordinator.services.storage.interfaces.istorage import IStorage
 
 T = TypeVar('T')
 
@@ -92,15 +92,14 @@ class SqliteStorage(IStorage[T]):
         ''', (generation_id,))
         return self.__parse_to_entities(res.fetchall())
 
-    def get_population_fitness(self, generation_id: UUID) -> FitnessScore | None:
+    def count_generations(self, experiment_id: UUID) -> int:
         q = self.cur.execute('''
-        SELECT avg(fitness) 
-        FROM individuals
-        WHERE generation_id = ?
-        GROUP BY generation_id
-        ''', (generation_id,))
+        SELECT COUNT(*)
+        FROM generations
+        WHERE experiment_id = ?
+        ''', (experiment_id,))
         res = q.fetchone()
-        return None if not res else res[0]
+        return 0 if not res else res[0]
 
     def __database_init(self):
         setup_script_path = os.path.join(os.path.dirname(__file__), self.__SETUP_SCRIPT)

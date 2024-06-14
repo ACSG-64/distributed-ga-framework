@@ -50,5 +50,5 @@ class IStorage(ABC, Generic[T]):
         raise NotImplementedError
 
     @abstractmethod
-    def get_population_fitness(self, generation_id: UUID) -> FitnessScore | None:
+    def count_generations(self, experiment_id: UUID) -> int:
         raise NotImplementedError
