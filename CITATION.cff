@@ -17,4 +17,4 @@ abstract: >-
   A horizontal scaling framework to distribute the
   evaluation of individuals.
 license: AGPL-3.0
-date-released: '2024-06-14'
+date-released: '2024-06-15'

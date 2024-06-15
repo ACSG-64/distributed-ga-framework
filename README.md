@@ -33,7 +33,7 @@ coordinator's `add_on_testing_sample_selected_listener` method) since it was alr
 advantage of this behaviour to, for example, apply the `elite` strategy.
 
 
-_Check the `coordinator/main.py` file for a simple demo on how to set up the components._
+_Check the `coordinator/example_main.py` file for a simple example on how to set up the components._
 
 ### Worker
 At a minimum, you need to create your custom evaluator class implementing the `IExperiment` _interface_ 
@@ -41,7 +41,7 @@ where its method, `evaluate_sample`, will be called by the local coordinator whe
 
 After evaluating the sample, call `_next`. Feel free to check an example of this in the `worker/experimenter/evaluators/my_evaluator.py` file.
 
-_Check the `worker/main.py` file for a simple demo on how to set up the components._
+_Check the `worker/example_main.py` file for a simple example on how to set up the components._
 
 ## Built-in implementations
 * **Messaging bus/queues** and **PubSub**: any AMQP 0-9-1 compatible service could be used.
