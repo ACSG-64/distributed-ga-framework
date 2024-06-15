@@ -87,9 +87,9 @@ class LocalExperimentCoordinator(Generic[T]):
         self._evaluation_complete_listeners.add_listener(listener)
 
     def __complete_experimentation(self, tested_sample: List[IndividualEntity[T]]):
+        self._evaluation_complete_listeners(tested_sample)
         self.reset()
         self._is_busy.value = False
-        self._evaluation_complete_listeners(tested_sample)
 
     def __refresh_iteration_start_time(self):
         if self._iteration_start_time is None:
