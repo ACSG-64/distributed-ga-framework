@@ -11,6 +11,7 @@ from coordinator.services.messaging.bus.interfaces.imessage_bus import IMessageB
 from coordinator.services.messaging.pubsub.publisher.interfaces.ipubsub_publisher import IPubSubPublisher
 from shared.utils.observable_scalar import ObservableScalar
 from shared.utils.promise import PromiseStatus
+from shared.utils.thread_safe import global_thread_safe
 
 T = TypeVar('T')
 
@@ -51,6 +52,7 @@ class ExperimentCoordinatorRunner(Generic[T]):
             executor.submit(self.message_bus.listen, callback)
             executor.submit(self.pubsub_pub.listen)
 
+    @global_thread_safe
     def terminate(self):
         self.stop_threaded_monitor()
         try:
@@ -62,17 +64,20 @@ class ExperimentCoordinatorRunner(Generic[T]):
         finally:
             self._is_terminated.value = True
 
+    @global_thread_safe
     def start_threaded_monitor(self):
         self.stop_threaded_monitor()
         self.stop_event.clear()
         self.monitor_thread = Thread(target=self.__monitor, daemon=True)
         self.monitor_thread.start()
 
+    @global_thread_safe
     def stop_threaded_monitor(self):
         self.stop_event.set()
         if self.monitor_thread.is_alive():
             self.monitor_thread.join()
 
+    @global_thread_safe
     def __setup_listeners(self):
         experiment_coordinator = self.experiment_coordinator
         message_bus = self.message_bus
@@ -88,11 +93,13 @@ class ExperimentCoordinatorRunner(Generic[T]):
             .add_on_testing_sample_selected_listener(self.__send_testing_sample)
         message_bus.add_on_result_received_listener(self.__add_result)
 
+    @global_thread_safe
     def __stop_messaging_services(self):
         self.message_bus.stop()
         if self.message_bus != self.pubsub_pub:
             self.pubsub_pub.stop()
 
+    @global_thread_safe
     def __start(self, _await: bool):
         if not _await:
             pending_ind = self.experiment_coordinator.untested_individuals
@@ -100,14 +107,17 @@ class ExperimentCoordinatorRunner(Generic[T]):
             self.__send_testing_sample(pending_ind)
         self.start_threaded_monitor()
 
+    @global_thread_safe
     @safe_pause_coordinator_thread
     def __add_result(self, _id: UUID, fitness: FitnessScore):
         self.experiment_coordinator.add_individual_fitness(_id, fitness)
 
+    @global_thread_safe
     def __send_testing_sample(self, sample: List[IndividualEntity]):
         for ind in sample:
             self.message_bus.send_individual(ind.id, ind.encoding)
 
+    @global_thread_safe
     def __monitor(self):
         message_bus = self.message_bus
         msgs_count_promise = None
@@ -119,8 +129,9 @@ class ExperimentCoordinatorRunner(Generic[T]):
             msgs_count_promise = message_bus.pending_deliveries_count
             msgs_count_promise \
                 .then(self.__resend_sample_on_timeout) \
-                .catch(lambda e: '') # TODO handle it
+                .catch(lambda e: print('EXCEPTION', e))  # TODO handle it
 
+    @global_thread_safe
     def __resend_sample_on_timeout(self, pending_msgs_count: int):
         experiment_coordinator = self.experiment_coordinator
         if experiment_coordinator.timeout(pending_msgs_count):

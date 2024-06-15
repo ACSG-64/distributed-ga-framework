@@ -7,6 +7,7 @@ from coordinator.services.storage.interfaces.istorage import IStorage
 from shared.annotations.custom import UUID, FitnessScore
 from shared.models.entities.individual import IndividualEntity
 from shared.models.value_objects.individual import IndividualValue
+from shared.utils.thread_safe import global_thread_safe
 
 T = TypeVar('T')
 
@@ -20,6 +21,7 @@ class SqliteStorage(IStorage[T]):
         self.con.execute('PRAGMA foreign_keys=ON')
         self.__database_init()
 
+    @global_thread_safe
     def create_experiment(self, name: str) -> Tuple[UUID, bool]:
         try:
             self.cur.execute('INSERT INTO experiments (name) VALUES (?)', (name,))
@@ -28,17 +30,20 @@ class SqliteStorage(IStorage[T]):
         except sqlite3.IntegrityError:
             return self.get_experiment_id(name), True
 
+    @global_thread_safe
     def create_generation(self, experiment_id: UUID) -> UUID:
         self.cur.execute('INSERT INTO generations (experiment_id) VALUES (?)',
                          (experiment_id,))
         self.con.commit()
         return self.cur.lastrowid
 
+    @global_thread_safe
     def experiment_exist(self, experiment_id: UUID) -> bool:
         res = self.cur.execute('SELECT id FROM experiments WHERE id = ?',
                                (experiment_id,))
         return res.fetchone() is not None
 
+    @global_thread_safe
     def store_population(self, generation_id: UUID, individuals: List[IndividualValue[T]]):
         values = [(generation_id, json.dumps(ind.encoding), ind.fitness) for ind in individuals]
         self.cur.executemany('''
@@ -46,17 +51,20 @@ class SqliteStorage(IStorage[T]):
         VALUES (?, ?, ?)''', values)
         self.con.commit()
 
+    @global_thread_safe
     def store_individual_fitness(self, individual_id: UUID, fitness: FitnessScore):
         self.cur.execute('UPDATE individuals SET fitness = ? WHERE id = ?',
                          (fitness, individual_id))
         self.con.commit()
 
+    @global_thread_safe
     def get_experiment_id(self, experiment_name: str) -> UUID | None:
         q = self.cur.execute('SELECT id FROM experiments WHERE name = ?',
                              (experiment_name,))
         res = q.fetchone()
         return None if not res else res[0]
 
+    @global_thread_safe
     def get_latest_generation_id(self, experiment_id: UUID) -> UUID | None:
         q = self.cur.execute('''
         SELECT id FROM generations
@@ -67,6 +75,7 @@ class SqliteStorage(IStorage[T]):
         res = q.fetchone()
         return None if not res else res[0]
 
+    @global_thread_safe
     def get_individual(self, individual_id: UUID) -> IndividualEntity[T] | None:
         q = self.cur.execute('''
         SELECT id, encoding, fitness FROM individuals WHERE id = ?
@@ -78,12 +87,14 @@ class SqliteStorage(IStorage[T]):
         encoding = json.loads(raw_encoding)
         return IndividualEntity[T](id=_id, encoding=encoding, fitness=fitness)
 
+    @global_thread_safe
     def get_population(self, generation_id: UUID) -> List[IndividualEntity[T]]:
         res = self.cur.execute('''
         SELECT id, encoding, fitness FROM individuals WHERE generation_id = ?
         ''', (generation_id,))
         return self.__parse_to_entities(res.fetchall())
 
+    @global_thread_safe
     def get_non_evaluated_individuals(self, generation_id: UUID) -> List[IndividualEntity[T]]:
         res = self.cur.execute('''
         SELECT id, encoding, fitness 
@@ -92,6 +103,7 @@ class SqliteStorage(IStorage[T]):
         ''', (generation_id,))
         return self.__parse_to_entities(res.fetchall())
 
+    @global_thread_safe
     def count_generations(self, experiment_id: UUID) -> int:
         q = self.cur.execute('''
         SELECT COUNT(*)
@@ -101,6 +113,7 @@ class SqliteStorage(IStorage[T]):
         res = q.fetchone()
         return 0 if not res else res[0]
 
+    @global_thread_safe
     def __database_init(self):
         setup_script_path = os.path.join(os.path.dirname(__file__), self.__SETUP_SCRIPT)
         with open(setup_script_path, 'r') as f:
